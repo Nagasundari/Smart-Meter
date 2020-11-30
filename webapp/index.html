@@ -1,0 +1,89 @@
+<html>
+
+<head>
+    <title>Test Graph</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+
+<body onload="adddata()">
+    <canvas id="myChart" style="display: block; width: 1012px; height: 506px;" width="1012" height="506"></canvas>
+    <div class="btn-group">
+        <input type="button" value="Refresh" onclick="adddata()" style="display: block; width: 100px; height: 50px;">
+        <div class="alert alert-primary" role="alert" style="display: block; width: 250px" width="200">
+            <h4>Current <span class="badge badge-secondary" id="current">New</span></h4>
+        </div>
+        <div class="alert alert-success" role="alert" style="display: block; width: 250px" width="200">
+            <h4>Usage <span class="badge badge-secondary" id="usage">New</span></h4>
+        </div>
+    </div>
+
+    <script>
+        var canvas = document.getElementById('myChart');
+        var data = {
+            labels: ["January", "February", "March", "April", "May", "June", "July"],
+            datasets: [
+                {
+                    label: "Current",
+                    fill: false,
+                    lineTension: 0.1,
+                    backgroundColor: "rgba(75,192,192,0.4)",
+                    borderColor: "rgba(75,192,192,1)",
+                    borderCapStyle: 'butt',
+                    borderDash: [],
+                    borderDashOffset: 0.0,
+                    borderJoinStyle: 'miter',
+                    pointBorderColor: "rgba(75,192,192,1)",
+                    pointBackgroundColor: "#fff",
+                    pointBorderWidth: 1,
+                    pointHoverRadius: 5,
+                    pointHoverBackgroundColor: "rgba(75,192,192,1)",
+                    pointHoverBorderColor: "rgba(220,220,220,1)",
+                    pointHoverBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHitRadius: 10,
+                    data: [65, 59, 80, 0, 56, 55, 40],
+                }
+            ],
+
+        };
+
+        function adddata() {
+            fetch('http://hci-flask.run-ap-south1.goorm.io/dataforplot')
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    console.log(data.x);
+                    myLineChart.data.datasets[0].data = data.y;
+                    myLineChart.data.labels = data.x;
+                    myLineChart.update();
+                    document.getElementById("current").innerHTML = data.current + "A";
+                    document.getElementById("usage").innerHTML = data.usage + "KWh";
+                });
+        }
+
+        var option = {
+            showLines: true,
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        suggestedMin: 0,
+                        suggestedMax: 5
+                    }
+                }]
+            }
+        };
+        var myLineChart = Chart.Line(canvas, {
+            data: data,
+            options: option
+        });
+        window.setInterval(function () {
+            adddata();
+        }, 100);
+
+
+    </script>
+</body>
+
+</html>
