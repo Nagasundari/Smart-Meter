@@ -8,16 +8,21 @@
 </head>
 
 <body onload="adddata()">
-    <canvas id="myChart" style="display: block; width: 1012px; height: 506px;" width="1012" height="506"></canvas>
-    <div class="btn-group">
-        <input type="button" value="Refresh" onclick="adddata()" style="display: block; width: 100px; height: 50px;">
-        <div class="alert alert-primary" role="alert" style="display: block; width: 250px" width="200">
-            <h4>Current <span class="badge badge-secondary" id="current">New</span></h4>
-        </div>
-        <div class="alert alert-success" role="alert" style="display: block; width: 250px" width="200">
-            <h4>Usage <span class="badge badge-secondary" id="usage">New</span></h4>
+    <div style="border:5px black;">
+        <canvas id="myChart"
+            style="display:block;position:relative;height:65vh;width:80vw;border:1 px solid #000000"></canvas>
+        <div class="btn-group">
+            <input type="button" value="Refresh" onclick="adddata()"
+                style="display: block; width: 100px; height: 50px;margin:10px;">
+            <div class="alert alert-primary" role="alert" style="display: block; width: 250px;margin:10px" width="200">
+                <h4>Current <span class="badge badge-secondary" id="current">New</span></h4>
+            </div>
+            <div class="alert alert-success" role="alert" style="display: block; width: 250px;margin:10px" width="200">
+                <h4>Usage <span class="badge badge-secondary" id="usage">New</span></h4>
+            </div>
         </div>
     </div>
+
 
     <script>
         var canvas = document.getElementById('myChart');
@@ -43,7 +48,7 @@
                     pointHoverBorderWidth: 2,
                     pointRadius: 5,
                     pointHitRadius: 10,
-                    data: [65, 59, 80, 0, 56, 55, 40],
+                    data: [65, 59, 80, 0, 56, 55, 40]
                 }
             ],
 
@@ -72,7 +77,11 @@
                         suggestedMax: 5
                     }
                 }]
-            }
+            },
+            zoomEnbaled: true,
+            width: 200,
+            height: 200,
+            hover: true
         };
         var myLineChart = Chart.Line(canvas, {
             data: data,
