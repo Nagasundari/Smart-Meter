@@ -28,6 +28,28 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, OLED_MOSI, OLED_CLK, OLED_
 int count = 0;
 double usage = 0.0;
 
+typedef struct t
+{
+  unsigned long tStart;
+  unsigned long tTimeout;
+};
+
+//Tasks and their Schedules.
+t t_func1 = {0, 1000}; //Run every 1000ms
+
+inline bool tCheck(struct t *t)
+{
+  if (millis() > t->tStart + t->tTimeout)
+    return true;
+  return false;
+}
+
+inline void tRun(struct t *t)
+{
+  t->tStart = millis();
+  count += 1;
+}
+
 void setup()
 {
   Serial.begin(9600);
@@ -41,11 +63,21 @@ void setup()
   display.setFont(&FreeSerif9pt7b);
   //Setup serial
   EEPROM_readAnything(0, usage);
+  t_func1.tStart = millis();
 }
 
 String data = "";
 
 void loop()
+{
+  if (tCheck(&t_func1))
+  {
+    tRun(&t_func1);
+    func1();
+  }
+}
+
+void func1(void)
 {
   // display.clearDisplay();
   int peakAdc = 0;
@@ -77,14 +109,13 @@ void loop()
     while (Serial3.available())
     {
       msg += char(Serial3.read());
-      delay(50);
+      //      delay(50);
     }
     Serial.println(msg);
   }
   //dispLED(String(effCurrent), String(usage));
   dispLED(String(effCurrent), String(usage));
   EEPROM_writeAnything(0, usage);
-  delay(1000);
 }
 
 void dispLED(String cur, String usg)
@@ -96,7 +127,6 @@ void dispLED(String cur, String usg)
   display.print("Current: " + cur + "A");
   display.setCursor(2, 30); //The string will start at 10,0 (x,y)
   display.print("Count: " + String(count));
-  count += 1;
   display.setCursor(2, 46);
   display.print("Usage: " + String(usg) + "KWh");
   display.display(); //send the text to the screen
