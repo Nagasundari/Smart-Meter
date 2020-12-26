@@ -1,6 +1,6 @@
-int analogPin = A0;
+int analogPin = A0; // arduino analog pin to read ACS712 sensor values
 int adcVal = 0; //variable to store the value read
-double scaleFactor = 100.0;
+double scaleFactor = 100.0; //sensor scale factor
 
 #include "EEPROMAnything.h"
 
@@ -37,6 +37,7 @@ typedef struct t
 //Tasks and their Schedules.
 t t_func1 = {0, 1000}; //Run every 1000ms
 
+/* function to check the timeout */
 inline bool tCheck(struct t *t)
 {
   if (millis() > t->tStart + t->tTimeout)
@@ -44,6 +45,7 @@ inline bool tCheck(struct t *t)
   return false;
 }
 
+/* When the function is run update the start time */
 inline void tRun(struct t *t)
 {
   t->tStart = millis();
@@ -72,6 +74,7 @@ void loop()
 {
   if (tCheck(&t_func1))
   {
+    /* this block is only run when the timeout condition is true */
     tRun(&t_func1);
     func1();
   }
@@ -90,11 +93,11 @@ void func1(void)
   double peakCurrent = (vout - 2500) / scaleFactor;
   double effCurrent = peakCurrent * 0.707;
   effCurrent = effCurrent < 0 ? 0 : effCurrent;
-  Serial.print("Current: ");
-  Serial.println(effCurrent);
+  // Serial.print("Current: ");
+  // Serial.println(effCurrent);
   usage += ((230.0 * effCurrent) / 3600000.0);
-  Serial.print("Usage: ");
-  Serial.println(usage, 6);
+  // Serial.print("Usage: ");
+  // Serial.println(usage, 6);
 
   data = "";
   data += effCurrent;
@@ -118,6 +121,7 @@ void func1(void)
   EEPROM_writeAnything(0, usage);
 }
 
+/* function to display the data to the oled screen */
 void dispLED(String cur, String usg)
 {
   display.clearDisplay();      //Eraser any previous display on the screen
