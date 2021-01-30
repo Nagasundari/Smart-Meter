@@ -86,12 +86,25 @@ void kirimDataKeServer()
   postData += current;
   postData += "&usage=";
   postData += usage;
+  postData += "&meter_id=";
+  postData += "sm01";
 
-  http.begin("http://hci-flask.run-ap-south1.goorm.io");
+  http.begin("http://192.168.1.111:5000");
   http.addHeader("Content-Type", "application/x-www-form-urlencoded");
 
   int httpCode = http.POST(postData); //Send the request
   String payload = http.getString();  //Get the response payload
+
+  Serial.println(httpCode); //Print HTTP return code
+  Serial.println(payload);  //Print request response payload
+
+  http.end();
+
+  http.begin("http://hci-flask.run-ap-south1.goorm.io");
+  http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+
+  httpCode = http.POST(postData); //Send the request
+  payload = http.getString();  //Get the response payload
 
   Serial.println(httpCode); //Print HTTP return code
   Serial.println(payload);  //Print request response payload
