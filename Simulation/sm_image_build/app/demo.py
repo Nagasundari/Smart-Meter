@@ -4,6 +4,9 @@ import threading
 import requests
 import os
 
+fport = int(os.environ["fport"])
+meter_id = os.environ["meter_id"]
+
 app = Flask(__name__)
 
 usage = 0  # keeps track of total usage
@@ -12,7 +15,7 @@ current = {}  # keeps track current usage of perticular device
 
 B = random.randint(1, 4)  # number of bulb
 F = random.randint(1, 3)  # number of fan
-serverUrl = "https://hci-flask.run-ap-south1.goorm.io"  # server url
+serverUrl = "http://192.168.1.111:5000"  # server url
 
 pos = {'B': [], 'F': []}  # keeps track of bulb or fan number
 
@@ -98,10 +101,10 @@ def sendUsage():
     usage += ((230.0*curVal)*curVal)/3600000.0
 
     print(usage, curVal)  # name = set in env
-    requests.post(serverUrl, data={"meter_id": "sm01", "current": curVal, "usage": usage})  # change this
+    requests.post(serverUrl, data={"meter_id": meter_id, "current": curVal, "usage": usage})  # change this
 
 
 if __name__ == "__main__":
     initAppliance()
     sendUsage()
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=fport)
