@@ -36,7 +36,7 @@ def send_data(meter_id):
 def append_data(meter_id, current, usage, time):
     meters[meter_id]['dataq'].append([time, current, usage])
     print("len: ", len(meters[meter_id]['dataq']))
-    if (len(meters[meter_id]['dataq']) == 3):
+    if (len(meters[meter_id]['dataq']) > 3):
         try:
             send_data(meter_id)
         except:
