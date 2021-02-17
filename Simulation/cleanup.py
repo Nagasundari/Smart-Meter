@@ -4,8 +4,7 @@ import threading
 client = docker.from_env()
 
 to_stop = []
-
-for i in client.containers.list():
+for i in client.containers.list(all = True):
     if "sm" in i.name:
         to_stop.append(i)
 

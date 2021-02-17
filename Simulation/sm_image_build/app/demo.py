@@ -3,6 +3,7 @@ import random
 import threading
 import requests
 import os
+import datetime
 
 fport = int(os.environ["fport"])
 meter_id = os.environ["meter_id"]
@@ -13,9 +14,10 @@ usage = 0  # keeps track of total usage
 status = {}  # gets the status of bulb or fan
 current = {}  # keeps track current usage of perticular device
 
-B = random.randint(1, 4)  # number of bulb
-F = random.randint(1, 3)  # number of fan
-serverUrl = "http://192.168.1.111:5000"  # server url
+B = 2  # number of bulb
+F = 2  # number of fan
+
+serverUrl = "http://rasp_server:5000"  # server url
 
 pos = {'B': [], 'F': []}  # keeps track of bulb or fan number
 
@@ -24,7 +26,7 @@ pos = {'B': [], 'F': []}  # keeps track of bulb or fan number
 
 
 def initAppliance():  # intialises appliance
-    current['B'] = 1
+    current['B'] = 2
     current['F'] = 2
 
     for i in range(1, B+1):
@@ -34,7 +36,6 @@ def initAppliance():  # intialises appliance
     for i in range(1, F+1):
         status['F'+str(i)] = 1
         pos['F'].append(i)
-
 
 def getNewPos(lst):  # checks for new bulb or fan number starting from 1
     cur = 1
@@ -67,6 +68,7 @@ def updateReadings():
 # adds the device to current infrastructure
 # format : {B:2, F:3}
 
+
 @app.route("/addDevice")
 def addDevice():
     data = request.get_json()
@@ -89,6 +91,15 @@ def addDevice():
 # ...............................................................
 # sends the reading to server at the interval of every 1 second
 
+@app.route("/change_state/<dev_id>/<stat>")
+def change_state(dev_id, stat):
+    dev_id = dev_id.upper()
+    if (stat == 'on'):
+        status[dev_id] = 1
+    else:
+        status[dev_id] = 0
+    return "DONE", 200
+
 
 def sendUsage():
     threading.Timer(1, sendUsage).start()
@@ -99,12 +110,14 @@ def sendUsage():
             curVal += current[key[0]]
 
     usage += ((230.0*curVal)*curVal)/3600000.0
-
-    print(usage, curVal)  # name = set in env
-    requests.post(serverUrl, data={"meter_id": meter_id, "current": curVal, "usage": usage})  # change this
+    #print(status)
+    #print(meter_id, curVal, usage)
+    #print(datetime.datetime.now())
+    requests.post(serverUrl, data={
+                  "meter_id": meter_id, "current": curVal, "usage": usage})  # change this
 
 
 if __name__ == "__main__":
     initAppliance()
     sendUsage()
-    app.run(host='0.0.0.0', port=fport)
+    app.run(host='0.0.0.0', port=fport, debug = False)
