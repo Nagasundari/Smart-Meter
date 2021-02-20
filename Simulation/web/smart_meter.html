@@ -144,7 +144,7 @@
 		};
 
 		function adddata() {
-			fetch('https://capstonens05.run-ap-south1.goorm.io/dataforplot/'+sm_id)
+			fetch('https://capstonens05.run-ap-south1.goorm.io/dataforplot/' + sm_id)
 				.then(response => response.json())
 				.then(data => {
 					console.log(data);
@@ -153,7 +153,7 @@
 					myLineChart.data.labels = data[1];
 					myLineChart.update();
 					console.log(data);
-					document.getElementById("current").innerHTML = data[0][data[0].length-1] + " A";
+					document.getElementById("current").innerHTML = data[0][data[0].length - 1] + " A";
 					document.getElementById("usage").innerHTML = data[2] + " KWh";
 				});
 		}
@@ -204,22 +204,22 @@
 		}
 
 
-		function fetchData(){
+		function fetchData() {
 
 			var url = window.location.href;
 			var index = url.indexOf("#");
 			sm_id = url.substring(index + 1);
 			console.log(sm_id);
-			document.getElementsByTagName("h1")[0].innerText=sm_id;
-			xhr=new XMLHttpRequest();
-			xhr.responseType="json";
-			xhr.onreadystatechange = function() {
-			if (this.readyState == 4 && this.status == 200) {
-						fillData();
-					}
-				};
+			document.getElementsByTagName("h1")[0].innerText = sm_id;
+			xhr = new XMLHttpRequest();
+			xhr.responseType = "json";
+			xhr.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					fillData();
+				}
+			};
 
-			xhr.open("GET","http://192.168.1.110:5001/get_devices/"+sm_id,true);
+			xhr.open("GET", "http://192.168.1.110:5001/get_devices/" + sm_id, true);
 			xhr.send();
 
 		}

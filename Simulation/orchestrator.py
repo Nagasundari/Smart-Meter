@@ -1,8 +1,10 @@
 import docker
 import sys
-from flask import Flask
+from flask import Flask, jsonify
+from flask_cors import cross_origin
 import threading
 import requests
+import ast
 
 # Define all variables
 start_port = 5002
@@ -52,11 +54,21 @@ app = Flask(__name__)
 
 
 @app.route('/change_state/<sm_id>/<dev_id>/<status>')
+@cross_origin()
 def change_state(sm_id, dev_id, status):
     global meter_port_map
     r = requests.get("http://localhost" + ":" + str(meter_port_map[sm_id]) + "/change_state/" + dev_id + "/" + status)
     return "DONE", 200
 
 
+@app.route('/get_devices/<sm_id>')
+@cross_origin()
+def get_devices(sm_id):
+    global meter_port_map
+    r = requests.get("http://localhost" + ":" + str(meter_port_map[sm_id]) + "/get_devices")
+    data = ast.literal_eval(r.text)
+    return jsonify(data), 200
+
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5001, debug=True)

@@ -99,7 +99,10 @@ def change_state(dev_id, stat):
     else:
         status[dev_id] = 0
     return "DONE", 200
-
+@app.route("/get_devices")
+def get_devices():
+    global status
+    return jsonify(status), 200
 
 def sendUsage():
     threading.Timer(1, sendUsage).start()
