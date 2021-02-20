@@ -21,6 +21,13 @@
 		<script>
 
 
+				function get_smart_meter_int_id(val)
+				{
+					var index = val.indexOf('m');
+					var returnVal = val.substring(index+1);
+					return parseInt(returnVal);
+				}
+
 				function getData()
 				{
 					xhttp = new XMLHttpRequest();
@@ -34,20 +41,67 @@
 					xhttp.send();
 				}
 			
+
+				function compare(a,b)
+				{
+					return a[0]-b[0];
+				}
+
 				function fillData() {
 					var tab = document.getElementsByClassName("tab")[0];
 					var sm_arr=xhttp.response;
-					sm_arr.sort();
-					sm_arr.forEach(function(el)
+					sm_arr_up=[]
+					sm_arr[1].forEach(function(el,index,list){
+						sm_arr_up[index]=get_smart_meter_int_id(el);
+						console.log(el);
+					});
+
+					sm_arr_2 = []
+					sm_arr[0].forEach(function(el,index,list){
+						var temp =get_smart_meter_int_id(el);
+						sm_arr_2[index] = [ temp , sm_arr_up.indexOf(temp)]
+					});
+
+
+					sm_arr_2.sort(compare);
+					console.log(sm_arr_2);
+
+					sm_arr_2.forEach(function(el)
 					{
 						var tr = document.createElement("tr");
 						var td = document.createElement("td");
+						var td2 = document.createElement("td");
 						var a=document.createElement("a");
+						var img = document.createElement("img");
+
 						a.target="_blank";
-						a.href="smart_meter.html#"+ el;
-						a.innerText=el;
+						
+						if(el[0] == 1 || el[0]==2 )
+						{
+							a.href="smart_meter.html#sm0"+ el[0];
+							a.innerText = "sm" + el[0];
+						}
+						else
+						{
+							a.href="smart_meter.html#sm"+ el[0];
+							a.innerText = "sm"+el[0];
+						}
+
+						if(el[1]==-1)
+						{
+							img.src='resources/down.png';
+						}
+						else
+						{
+							img.src='resources/up.png';
+						}
+
+						img.setAttribute("style","width:25;height:25")
+
+						td2.appendChild(img);
 						td.appendChild(a);
 						tr.appendChild(td);
+						tr.appendChild(td2);
 						tab.appendChild(tr);
 					});
 				}
@@ -58,9 +112,10 @@
 	</head>
 	<body onload="getData()">
 		<div class="main">
-			<table class="table table-bordered table-hover">
+			<h1 style="margin-left:24%;margin-bottom: 5%"> Smart Meter Dashboard </h1>
+			<table class="table table-bordered table-hover" style="text-align: center">
 			<thead>
-				<tr><th>Smart Meter ID</th></tr>
+				<tr><th>Smart Meter</th><th>Status</th></tr>
 			</thead>
 			<tbody class="tab">
 			</tbody>

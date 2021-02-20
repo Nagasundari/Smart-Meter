@@ -76,8 +76,9 @@
 	</style>
 </head>
 
-<body onload="fillData()">
-	<div style="width:60%;height:50%;float:left">
+<body onload="fetchData()">
+	<div style="width:70%;height:50%;margin-left: 15%">
+		<h1 style="margin-left: 30%"></h1>
 		<div style="border:5px black;">
 			<canvas id="myChart"
 				style="display:block;position:relative;height:65vh;width:80vw;border:1 px solid #000000">
@@ -96,7 +97,7 @@
 			</div>
 		</div>
 
-		<table style="width:35%;float:right" class="table table-bordered table-hover">
+		<table style="margin-left:30%;text-align:center" class="table table-bordered table-hover">
 			<thead>
 				<tr>
 					<th>
@@ -143,17 +144,17 @@
 		};
 
 		function adddata() {
-			fetch('https://capstonens05.run-ap-south1.goorm.io/dataforplot/sm3')
+			fetch('https://capstonens05.run-ap-south1.goorm.io/dataforplot/'+sm_id)
 				.then(response => response.json())
 				.then(data => {
 					console.log(data);
 					console.log(data.x);
-					myLineChart.data.datasets[0].data = data;
-					myLineChart.data.labels = data;
+					myLineChart.data.datasets[0].data = data[0];
+					myLineChart.data.labels = data[1];
 					myLineChart.update();
 					console.log(data);
-					document.getElementById("current").innerHTML = data[0] + "A";
-					document.getElementById("usage").innerHTML = data.usage + "KWh";
+					document.getElementById("current").innerHTML = data[0][data[0].length-1] + " A";
+					document.getElementById("usage").innerHTML = data[2] + " KWh";
 				});
 		}
 
@@ -180,7 +181,7 @@
 
 		window.setInterval(function () {
 			adddata();
-		}, 5000);
+		}, 2000);
 
 
 
@@ -198,27 +199,45 @@
 			console.log("Device status to be : " + status);
 
 			var xhr = new XMLHttpRequest();
-			xhr.open("GET", "http://localhost:5000/change_state/" + sm_id + "/" + device + "/" + status);
+			xhr.open("GET", "http://192.168.1.110:5001/change_state/" + sm_id + "/" + device + "/" + status);
 			xhr.send();
 		}
 
+
+		function fetchData(){
+
+			var url = window.location.href;
+			var index = url.indexOf("#");
+			sm_id = url.substring(index + 1);
+			console.log(sm_id);
+			document.getElementsByTagName("h1")[0].innerText=sm_id;
+			xhr=new XMLHttpRequest();
+			xhr.responseType="json";
+			xhr.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+						fillData();
+					}
+				};
+
+			xhr.open("GET","http://192.168.1.110:5001/get_devices/"+sm_id,true);
+			xhr.send();
+
+		}
+
+
+
+
 		function fillData() {
-			data_arr = {
-				"f1": 0,
-				"f2": 1,
-				"f3": 1,
-				"b1": 0,
-				"b2": 1
-			}
+			data_arr = xhr.response;
 
 			var tab = document.getElementsByTagName("tbody")[0];
 
 			data = {
-				"f": "Fan",
-				"t": "TV",
-				"b": "Bulb",
-				"w": "Washing Machine",
-				"r": "Refrigerator"
+				"F": "Fan",
+				"T": "TV",
+				"B": "Bulb",
+				"W": "Washing Machine",
+				"R": "Refrigerator"
 			}
 
 			for (x in data_arr) {
@@ -254,9 +273,6 @@
 				tab.appendChild(tr);
 
 			}
-			var url = window.location.href;
-			var index = url.indexOf("#");
-			sm_id = url.substring(index + 1);
 			adddata();
 		}
 
