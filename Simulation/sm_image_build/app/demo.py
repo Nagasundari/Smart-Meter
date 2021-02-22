@@ -14,6 +14,8 @@ usage = 0  # keeps track of total usage
 status = {}  # gets the status of bulb or fan
 current = {}  # keeps track current usage of perticular device
 
+glob_current = 0
+
 B = 2  # number of bulb
 F = 2  # number of fan
 
@@ -47,8 +49,6 @@ def getNewPos(lst):  # checks for new bulb or fan number starting from 1
 # flask function
 # gets the total device status
 # no body required
-
-
 @app.route("/getReadings")
 def getReadings():
     return jsonify(status)
@@ -99,19 +99,28 @@ def change_state(dev_id, stat):
     else:
         status[dev_id] = 0
     return "DONE", 200
+
 @app.route("/get_devices")
 def get_devices():
     global status
     return jsonify(status), 200
 
+@app.route("/get_current")
+def get_current():
+    global glob_current
+    return str(glob_current), 200
+
+
 def sendUsage():
     threading.Timer(1, sendUsage).start()
     curVal = 0
     global usage
+    global glob_current
     for key in status:
         if status[key]:
             curVal += current[key[0]]
-
+    
+    glob_current = curVal
     usage += ((230.0*curVal)*curVal)/3600000.0
     #print(status)
     #print(meter_id, curVal, usage)

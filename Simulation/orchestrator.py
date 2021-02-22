@@ -17,6 +17,8 @@ no_of_meters = int(sys.argv[1])
 
 client = docker.from_env()
 
+rasp_url = "http://localhost:5000"
+
 temp_nws = []
 for i in client.networks.list():
     temp_nws.append(i.name)
@@ -60,6 +62,11 @@ def change_state(sm_id, dev_id, status):
     r = requests.get("http://localhost" + ":" + str(meter_port_map[sm_id]) + "/change_state/" + dev_id + "/" + status)
     return "DONE", 200
 
+@app.route('/get_meters_name_port')
+@cross_origin()
+def get_meters_name_port():
+    global meter_port_map
+    return jsonify(meter_port_map), 200
 
 @app.route('/get_devices/<sm_id>')
 @cross_origin()
@@ -69,6 +76,11 @@ def get_devices(sm_id):
     data = ast.literal_eval(r.text)
     return jsonify(data), 200
 
+@app.route('/get_rasp_current')
+@cross_origin()
+def get_rasp_current():
+    print("sent", rasp_url + "/get_rasp_current")
+    return requests.get(rasp_url + "/get_rasp_current").text, 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)
