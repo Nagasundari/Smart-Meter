@@ -3,6 +3,7 @@ import random
 import threading
 import requests
 import os
+from flask_cors import cross_origin
 import datetime
 
 fport = int(os.environ["fport"])
@@ -50,6 +51,7 @@ def getNewPos(lst):  # checks for new bulb or fan number starting from 1
 # gets the total device status
 # no body required
 @app.route("/getReadings")
+@cross_origin()
 def getReadings():
     return jsonify(status)
 
@@ -57,6 +59,7 @@ def getReadings():
 # updates the given device
 # format : {'B1':1, B2: 0, ..}
 @app.route("/updateReadings")
+@cross_origin()
 def updateReadings():
     data = request.get_json()
 
@@ -70,6 +73,7 @@ def updateReadings():
 
 
 @app.route("/addDevice")
+@cross_origin()
 def addDevice():
     data = request.get_json()
     for device in data:
@@ -92,6 +96,7 @@ def addDevice():
 # sends the reading to server at the interval of every 1 second
 
 @app.route("/change_state/<dev_id>/<stat>")
+@cross_origin()
 def change_state(dev_id, stat):
     dev_id = dev_id.upper()
     if (stat == 'on'):
@@ -101,11 +106,13 @@ def change_state(dev_id, stat):
     return "DONE", 200
 
 @app.route("/get_devices")
+@cross_origin()
 def get_devices():
     global status
     return jsonify(status), 200
 
 @app.route("/get_current")
+@cross_origin()
 def get_current():
     global glob_current
     return str(glob_current), 200
