@@ -129,6 +129,8 @@ def sendUsage():
     
     glob_current = curVal
     usage += ((230.0*curVal)*curVal)/3600000.0
+    with open("data.txt", "w") as f:
+        f.write(str(glob_current))
     #print(status)
     #print(meter_id, curVal, usage)
     #print(datetime.datetime.now())
