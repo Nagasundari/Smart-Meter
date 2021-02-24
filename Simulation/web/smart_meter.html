@@ -1,0 +1,287 @@
+<html>
+
+<head>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+		integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+	<style>
+		.table {
+			margin-top: 5%;
+			margin-left: 25%;
+			width: 30%;
+		}
+
+
+		.switch {
+			position: relative;
+			display: inline-block;
+			width: 60px;
+			height: 34px;
+		}
+
+		/* Hide default HTML checkbox */
+		.switch input {
+			opacity: 0;
+			width: 0;
+			height: 0;
+		}
+
+		/* The slider */
+		.slider {
+			position: absolute;
+			cursor: pointer;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background-color: #ccc;
+			-webkit-transition: .4s;
+			transition: .4s;
+		}
+
+		.slider:before {
+			position: absolute;
+			content: "";
+			height: 26px;
+			width: 26px;
+			left: 4px;
+			bottom: 4px;
+			background-color: white;
+			-webkit-transition: .4s;
+			transition: .4s;
+		}
+
+		input:checked+.slider {
+			background-color: #2196F3;
+		}
+
+		input:focus+.slider {
+			box-shadow: 0 0 1px #2196F3;
+		}
+
+		input:checked+.slider:before {
+			-webkit-transform: translateX(26px);
+			-ms-transform: translateX(26px);
+			transform: translateX(26px);
+		}
+
+		/* Rounded sliders */
+		.slider.round {
+			border-radius: 34px;
+		}
+
+		.slider.round:before {
+			border-radius: 50%;
+		}
+	</style>
+</head>
+
+<body onload="fetchData()">
+	<div style="width:70%;height:50%;margin-left: 15%">
+		<h1 style="margin-left: 30%"></h1>
+		<div style="border:5px black;">
+			<canvas id="myChart"
+				style="display:block;position:relative;height:65vh;width:80vw;border:1 px solid #000000">
+			</canvas>
+			<div class="btn-group">
+				<input type="button" value="Refresh" onclick="adddata()"
+					style="display: block; width: 100px; height: 50px;margin:10px;">
+				<div class="alert alert-primary" role="alert" style="display: block; width: 250px;margin:10px"
+					width="200">
+					<h4>Current <span class="badge badge-secondary" id="current">New</span></h4>
+				</div>
+				<div class="alert alert-success" role="alert" style="display: block; width: 250px;margin:10px"
+					width="200">
+					<h4>Usage <span class="badge badge-secondary" id="usage">New</span></h4>
+				</div>
+			</div>
+		</div>
+
+		<table style="margin-left:30%;text-align:center" class="table table-bordered table-hover">
+			<thead>
+				<tr>
+					<th>
+						Device Name
+					</th>
+					<th>
+						Status
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+	</div>
+	<script>
+
+		var canvas = document.getElementById('myChart');
+		var data = {
+			labels: ["January", "February", "March", "April", "May", "June", "July"],
+			datasets: [
+				{
+					label: "Current",
+					fill: false,
+					lineTension: 0.1,
+					backgroundColor: "rgba(75,192,192,0.4)",
+					borderColor: "rgba(75,192,192,1)",
+					borderCapStyle: 'butt',
+					borderDash: [],
+					borderDashOffset: 0.0,
+					borderJoinStyle: 'miter',
+					pointBorderColor: "rgba(75,192,192,1)",
+					pointBackgroundColor: "#fff",
+					pointBorderWidth: 1,
+					pointHoverRadius: 5,
+					pointHoverBackgroundColor: "rgba(75,192,192,1)",
+					pointHoverBorderColor: "rgba(220,220,220,1)",
+					pointHoverBorderWidth: 2,
+					pointRadius: 5,
+					pointHitRadius: 10,
+					data: [65, 59, 80, 0, 56, 55, 40]
+				}
+			],
+
+		};
+
+		function adddata() {
+			fetch('https://capstonens05.run-ap-south1.goorm.io/dataforplot/' + sm_id)
+				.then(response => response.json())
+				.then(data => {
+					console.log(data);
+					console.log(data.x);
+					myLineChart.data.datasets[0].data = data[0];
+					myLineChart.data.labels = data[1];
+					myLineChart.update();
+					console.log(data);
+					document.getElementById("current").innerHTML = data[0][data[0].length - 1] + " A";
+					document.getElementById("usage").innerHTML = data[2] + " KWh";
+				});
+		}
+
+		var option = {
+			showLines: true,
+			scales: {
+				yAxes: [{
+					ticks: {
+						suggestedMin: 0,
+						suggestedMax: 5
+					}
+				}]
+			},
+			zoomEnbaled: true,
+			width: 200,
+			height: 200,
+			hover: true
+		};
+
+		var myLineChart = Chart.Line(canvas, {
+			data: data,
+			options: option
+		});
+
+		window.setInterval(function () {
+			adddata();
+		}, 2000);
+
+
+
+		function toggleData(event) {
+			//device name =  e.g : f1
+			//status = e.g : on / off
+			var device = event.target.val;
+
+			var status = "off";
+			if (event.target.checked) {
+				status = "on";
+			}
+			console.log("Smart Meter ID : " + sm_id);
+			console.log("Device Name : " + device);
+			console.log("Device status to be : " + status);
+
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", "http://192.168.1.110:5001/change_state/" + sm_id + "/" + device + "/" + status);
+			xhr.send();
+		}
+
+
+		function fetchData() {
+
+			var url = window.location.href;
+			var index = url.indexOf("#");
+			sm_id = url.substring(index + 1);
+			console.log(sm_id);
+			document.getElementsByTagName("h1")[0].innerText = sm_id;
+			xhr = new XMLHttpRequest();
+			xhr.responseType = "json";
+			xhr.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					fillData();
+				}
+			};
+
+			xhr.open("GET", "http://192.168.1.110:5001/get_devices/" + sm_id, true);
+			xhr.send();
+
+		}
+
+
+
+
+		function fillData() {
+			data_arr = xhr.response;
+
+			var tab = document.getElementsByTagName("tbody")[0];
+
+			data = {
+				"F": "Fan",
+				"T": "TV",
+				"B": "Bulb",
+				"W": "Washing Machine",
+				"R": "Refrigerator"
+			}
+
+			for (x in data_arr) {
+				var tr = document.createElement("tr");
+				var td1 = document.createElement("td");
+				var td2 = document.createElement("td");
+				td1.innerText = data[x[0]] + " " + x[1];
+				var input = document.createElement("input");
+				var label = document.createElement("label");
+				var span = document.createElement("span");
+				span.setAttribute("class", "slider round");
+				label.setAttribute("class", "switch");
+				/*
+				<label class="switch">
+						<input type="checkbox">
+						<span class="slider round"></span>
+				</label>
+				*/
+				input.type = "checkbox";
+				input.val = x;
+				input.addEventListener("click", toggleData);
+
+				if (data_arr[x])   // check if the device is on or not
+				{
+					input.checked = true;  //if the device is on, turn the toggle on
+				}
+
+				label.appendChild(input);
+				label.appendChild(span);
+				td2.appendChild(label);
+				tr.appendChild(td1);
+				tr.appendChild(td2);
+				tab.appendChild(tr);
+
+			}
+			adddata();
+		}
+
+	</script>
+
+
+
+
+
+</body>
+
+</html>
