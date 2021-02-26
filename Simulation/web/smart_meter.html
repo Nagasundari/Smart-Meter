@@ -73,12 +73,46 @@
 		.slider.round:before {
 			border-radius: 50%;
 		}
+
+				* {
+		box-sizing: border-box;
+		}
+
+		.row1 {
+		display: flex;
+		margin-left:-5px;
+		margin-right:-5px;
+		}
+
+		.column1 {
+		flex: 50%;
+		padding: 5px;
+		}
+
+		table {
+		border-collapse: collapse;
+		border-spacing: 0;
+		width: 100%;
+		border: 1px solid #ddd;
+		}
+
+		th, td {
+		text-align: left;
+		padding: 16px;
+		}
+
+		tr:nth-child(even) {
+		background-color: #f2f2f2;
+		}
+
+
 	</style>
 </head>
 
 <body onload="fetchData()">
 	<div style="width:70%;height:50%;margin-left: 15%">
-		<h1 style="margin-left: 30%"></h1>
+		<h1 style="text-align: center;">Advanced Metering Infrastructure Simulation</h1>
+		<h2 style="text-align: center;"></h2>
 		<div style="border:5px black;">
 			<canvas id="myChart"
 				style="display:block;position:relative;height:65vh;width:80vw;border:1 px solid #000000">
@@ -97,7 +131,9 @@
 			</div>
 		</div>
 
-		<table style="margin-left:30%;text-align:center" class="table table-bordered table-hover">
+		<div class="row1">
+		<div class="column1">
+		<table>
 			<thead>
 				<tr>
 					<th>
@@ -110,7 +146,38 @@
 			</thead>
 			<tbody>
 			</tbody>
-		</table>
+			</table>
+			</div>
+			<div class="column1">
+			<table>
+			<thead>
+				<tr>
+					<th>
+						Device name
+					</th>
+					<th>
+						Current Consumption in A
+					</th>
+				</tr>
+				<tr>
+					<td>Bulb</td> <td> 0.4 </td>
+				</tr>
+				<tr>
+					<td>Fan</td> <td> 0.6 </td>
+				</tr>
+				<tr>
+					<td>Washing Machine</td> <td> 4 </td>
+				</tr>
+				<tr>
+					<td>Television</td><td> 0.5 </td>
+				</tr>
+				<tr>
+					<td>Refrigerator</td><td> 1.5 </td>
+				</tr>
+			</thead>
+			</table>
+			</div>
+			</div>
 	</div>
 	<script>
 
@@ -210,7 +277,7 @@
 			var index = url.indexOf("#");
 			sm_id = url.substring(index + 1);
 			console.log(sm_id);
-			document.getElementsByTagName("h1")[0].innerText = sm_id;
+			document.getElementsByTagName("h2")[0].innerHTML ="Smart Meter ID : " + sm_id;
 			xhr = new XMLHttpRequest();
 			xhr.responseType = "json";
 			xhr.onreadystatechange = function () {
@@ -277,10 +344,6 @@
 		}
 
 	</script>
-
-
-
-
 
 </body>
 

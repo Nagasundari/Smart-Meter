@@ -155,7 +155,7 @@
 				{	
 					i = sorted_arr[j]
 					image_array[j].href = img_arr[arr[i][2]];
-					current_arr[j].innerText ="Current: " + arr[i][0] + " A";
+					current_arr[j].innerText ="Current: " + arr[i][0] * arr[i][2] + " A";
 					usage_arr[j].innerText ="Usage: "+  arr[i][1] + " kWh";
 				}
 			}
@@ -235,10 +235,9 @@
 
 					a.innerText = i;
 					a.href="smart_meter.html#"+i;
-					a.target = "_blank"
 					h4.appendChild(a);
 
-					span1.innerText = "Current : " + arr[i][0] +"A";
+					span1.innerText = "Current : " + arr[i][0] * arr[i][2] +"A";
 					span2.innerText = "Usage : " + arr[i][1] + "kWh";
 					h5.appendChild(div_for_status);
 					h5.appendChild(span1);
@@ -276,7 +275,10 @@
 		</script>
 
 	</head>
-	<body onload="getDataTemp()">
+	<body onload="getDataTemp()" style="text-align: center;">
+		<h1>Advanced Metering Infrastructure Simulation</h1>
+		<h2>Smart Meter Dashboard</h2>
+		<h3></h3>
 		<div class="container" id="container1">
 		</div>
 	</body>
