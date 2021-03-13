@@ -5,6 +5,7 @@ import requests
 import os
 from flask_cors import cross_origin
 import datetime
+import hashlib
 
 fport = int(os.environ["fport"])
 meter_id = os.environ["meter_id"]
@@ -25,7 +26,8 @@ R = 1
 
 serverUrl = "http://rasp_server:5000"  # server url
 
-pos = {'B': [], 'F': [], 'W': [], 'T': [], 'R': []}  # keeps track of bulb or fan number
+# keeps track of bulb or fan number
+pos = {'B': [], 'F': [], 'W': [], 'T': [], 'R': []}
 
 # helper function
 # ......................................................................................................................................
@@ -49,14 +51,15 @@ def initAppliance():  # intialises appliance
     for i in range(1, W+1):
         status['W'+str(i)] = 0
         pos['W'].append(i)
-    
+
     for i in range(1, T+1):
         status['T'+str(i)] = 0
         pos['T'].append(i)
-    
+
     for i in range(1, R+1):
         status['R'+str(i)] = 0
         pos['R'].append(i)
+
 
 def getNewPos(lst):  # checks for new bulb or fan number starting from 1
     cur = 1
@@ -68,6 +71,8 @@ def getNewPos(lst):  # checks for new bulb or fan number starting from 1
 # flask function
 # gets the total device status
 # no body required
+
+
 @app.route("/getReadings")
 @cross_origin()
 def getReadings():
@@ -113,6 +118,7 @@ def addDevice():
 # ...............................................................
 # sends the reading to server at the interval of every 1 second
 
+
 @app.route("/change_state/<dev_id>/<stat>")
 @cross_origin()
 def change_state(dev_id, stat):
@@ -123,11 +129,13 @@ def change_state(dev_id, stat):
         status[dev_id] = 0
     return "DONE", 200
 
+
 @app.route("/get_devices")
 @cross_origin()
 def get_devices():
     global status
     return jsonify(status), 200
+
 
 @app.route("/get_current")
 @cross_origin()
@@ -144,19 +152,27 @@ def sendUsage():
     for key in status:
         if status[key]:
             curVal += current[key[0]]
-    
+
     glob_current = curVal
     usage += ((230.0*curVal)*curVal)/3600000.0
     with open("data.txt", "w") as f:
         f.write(str(glob_current))
-    #print(status)
+    
+    # print(status)
     #print(meter_id, curVal, usage)
-    #print(datetime.datetime.now())
+    # print(datetime.datetime.now())
+
+    print("current:", current)
+    print("usage:", usage)
+    print("meter_id:", meter_id)
+
+    dk = hashlib.pbkdf2_hmac('sha256', bytes("current=" + str(curVal) +
+                                             ";" + "usage=" + str(usage), 'utf-8'), bytes(meter_id, 'utf-8'), 37)
     requests.post(serverUrl, data={
-                  "meter_id": meter_id, "current": curVal, "usage": usage})  # change this
+                  "meter_id": meter_id, "current": curVal, "usage": usage, "hash": str(dk.hex())})  # change this
 
 
 if __name__ == "__main__":
     initAppliance()
     sendUsage()
-    app.run(host='0.0.0.0', port=fport, debug = False)
+    app.run(host='0.0.0.0', port=fport, debug=False)
