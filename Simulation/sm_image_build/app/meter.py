@@ -17,20 +17,26 @@ current = {}  # keeps track current usage of perticular device
 
 glob_current = 0
 
-B = 2  # number of bulb
-F = 2  # number of fan
+B = 3  # number of bulb
+F = 3  # number of fan
+W = 1
+T = 2
+R = 1
 
 serverUrl = "http://rasp_server:5000"  # server url
 
-pos = {'B': [], 'F': []}  # keeps track of bulb or fan number
+pos = {'B': [], 'F': [], 'W': [], 'T': [], 'R': []}  # keeps track of bulb or fan number
 
 # helper function
 # ......................................................................................................................................
 
 
 def initAppliance():  # intialises appliance
-    current['B'] = 2
-    current['F'] = 2
+    current['B'] = 0.4
+    current['F'] = 0.6
+    current['W'] = 4
+    current['T'] = 0.5
+    current['R'] = 1.5
 
     for i in range(1, B+1):
         status['B'+str(i)] = 1
@@ -39,6 +45,18 @@ def initAppliance():  # intialises appliance
     for i in range(1, F+1):
         status['F'+str(i)] = 1
         pos['F'].append(i)
+
+    for i in range(1, W+1):
+        status['W'+str(i)] = 0
+        pos['W'].append(i)
+    
+    for i in range(1, T+1):
+        status['T'+str(i)] = 0
+        pos['T'].append(i)
+    
+    for i in range(1, R+1):
+        status['R'+str(i)] = 0
+        pos['R'].append(i)
 
 def getNewPos(lst):  # checks for new bulb or fan number starting from 1
     cur = 1

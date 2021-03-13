@@ -235,9 +235,10 @@
 
 					a.innerText = i;
 					a.href="smart_meter.html#"+i;
+					a.target = "_blank";
 					h4.appendChild(a);
-
-					span1.innerText = "Current : " + arr[i][0] * arr[i][2] +"A";
+					
+					span1.innerText = "Current : " + parseFloat(arr[i][0]).toFixed(3) * arr[i][2] +"A";
 					span2.innerText = "Usage : " + arr[i][1] + "kWh";
 					h5.appendChild(div_for_status);
 					h5.appendChild(span1);
