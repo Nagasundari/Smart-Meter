@@ -77,34 +77,44 @@ void loop()
   }
 }
 
+String encrypt(String input)
+{
+  int arr[] = {5,10,6,1,19,20,2,8,10,25,4,3,29,12,18,4,25,27,19,24,23,6,13,24,12,28,6,30,23,6,29};
+  int n = 31;
+  String output;
+  int i=0;
+  int len = input.length();
+  for(i=0;i<len;i++)
+  {
+    int num = (input[i] - arr[i%n]);
+    if (num == 38) {
+      num = 10;
+    }
+    output += (char)(num);
+  }
+  return output;
+}
+
 void kirimDataKeServer()
 {
   HTTPClient http; //Declare object of class HTTPClient
-  String postData;
+  String tempData;
   //Post Data
-  postData = "current=";
-  postData += current;
-  postData += "&usage=";
-  postData += usage;
-  postData += "&meter_id=";
-  postData += "sm01";
+  tempData = "current=";
+  tempData += current;
+  tempData += "&usage=";
+  tempData += usage;
+  tempData += "&meter_id=";
+  tempData += "sm01";
 
-  http.begin("http://192.168.1.111:5000");
+  String postData = "encrypted_data=";
+  postData += encrypt(tempData);
+  
+  http.begin("http://192.168.1.111:5001");
   http.addHeader("Content-Type", "application/x-www-form-urlencoded");
 
   int httpCode = http.POST(postData); //Send the request
   String payload = http.getString();  //Get the response payload
-
-  Serial.println(httpCode); //Print HTTP return code
-  Serial.println(payload);  //Print request response payload
-
-  http.end();
-
-  http.begin("http://hci-flask.run-ap-south1.goorm.io");
-  http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-
-  httpCode = http.POST(postData); //Send the request
-  payload = http.getString();  //Get the response payload
 
   Serial.println(httpCode); //Print HTTP return code
   Serial.println(payload);  //Print request response payload
